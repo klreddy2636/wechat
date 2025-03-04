@@ -1,0 +1,275 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            background-image: url({% static 'images/inferno.jpg' %});
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+        }
+
+        #logo {
+            position: fixed;
+            left: 10px;
+            top: 10px;
+            font-size: 1.5em;
+        }
+
+        nav {
+            float: right;
+        }
+
+        .nav-links {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links li {
+            display: inline-block;
+            margin-left: 20px;
+        }
+
+        .nav-links li a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links li a:hover {
+            background-color: #555;
+        }
+
+        .content {
+            padding: 50px 0;
+            text-align: center;
+        }
+
+        #content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow-y: scroll;
+            height: 300px;
+            background-color: black;
+            opacity: 0.8;
+        }
+
+        input {
+            max-width: 800px;
+            width: 100%;
+            color: white;
+            background-color: black;
+            padding: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: black;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        #playersList {
+            position: absolute;
+            left: 0;
+            max-width: 200px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow-y: scroll;
+            height: 300px;
+            background-color: black;
+            opacity: 0.8;
+        }
+
+        /* New styling for message input, send button container */
+        #input-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        #input-container input {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        #input-container button {
+            width: 100px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <div id="logo">
+                <img style="width: 80px; height: 80px;" src="{% static 'images/esport.avif' %}" alt="">
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="/about/">About</a></li>
+                    <li><a href="/people/">Meet New People</a></li>
+                    <li><a href="#">My Requests</a></li>
+                    
+                    <li><a href="/profile/">
+                        <img id="profile_pic" style="width:40px; height:40px;" 
+                        src="{% static 'images/user.png'%}" alt="">
+                    </a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <h1 id="greetings"></h1>
+
+    <h1>Game Room Forum</h1>
+    <h3>Global Chat</h3>
+    
+
+    <h3 id="players">Players Online</h3>
+
+    <div id="global-chat">
+        <div id="playersList">
+            <h1>Players List</h1>
+        </div>
+        <div id="content">
+            <h2>Messages</h2>
+        </div>
+        <form id="form">
+            {% csrf_token %}
+            <div id="input-container">
+                <input id="globalChat" type="text" name="message" placeholder="Type a message..." required/>
+                <button type="submit">Send</button>
+            </div>
+        </form>
+    </div>
+
+    <script type="text/javascript">
+
+        var baseUrl = window.location.origin;
+        let greetings = document.getElementById('greetings');
+        let profile_pic = document.getElementById('profile_pic');
+        document.addEventListener('DOMContentLoaded', function () {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = '/login/';
+            }
+            var response = fetch(
+                baseUrl+'/API/verify_token/',
+                {
+                    method: 'GET',
+                    headers: {
+                        
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            )
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status_code === 401) {
+                        window.alert('Session Expired. Please login again');
+                        window.location.href = '/login/';
+                    }
+                    else{
+                        console.log('Token verified');
+                        console.log("Data is "+data.user_profile.username);
+                        greetings.innerHTML = `Welcome ${data.user_profile.username}`;
+                        profile_pic.src = data.user_profile.profile_pic;
+                    }
+                })
+                .catch(error => {
+                    // Handle network or other unexpected errors
+                    console.error('Error:', error);
+                    window.alert('An error occurred while verifying the token. Please try again later.');
+                    window.location.href = '/login/';
+                });
+        });
+
+
+
+        const players = document.querySelector('#players');
+        const token = localStorage.getItem('authToken');
+        const globalChat = document.querySelector('#globalChat');
+        let url = `ws://${window.location.host}/ws/socket-server/?token=${encodeURIComponent(token)}`;
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const chatSocket = new WebSocket(url)
+        const content = document.getElementById('content');
+        const playersList = document.getElementById('playersList');
+
+        
+
+        function scrollToBottom() {
+            content.scrollTop = content.scrollHeight;
+        }
+
+        chatSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            console.log(data);
+        }
+
+        let form = document.getElementById('form');
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            let message = e.target.message.value;
+            globalChat.value = '';
+            chatSocket.send(JSON.stringify({
+                'message': message
+            }));
+        });
+
+        let div = document.querySelector('#content');
+        chatSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+
+            if (data.type === 'message_received') {
+                div.innerHTML += '<br>' + '<h3>' + data.message + '<h3>' + ' ' + '-' + ' ' + data.username;
+                scrollToBottom();
+            }
+
+            if (data.type === 'user_count') {
+                players.innerHTML = "Players Online: " + data.user_count;
+                playersList.innerHTML = '';
+                playersList.innerHTML = '<h1>Players List</h1>';
+                for (let i = 0; i < data.user_list.length; i++) {
+                    playersList.innerHTML += '<br>' + data.user_list[i];
+                }
+                
+            }
+        }
+    </script>
+</body>
+
+</html>

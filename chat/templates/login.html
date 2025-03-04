@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+
+<style>
+    body{
+        background-image: url({% static 'images/COD.jpg' %});
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center;
+        color: white;
+
+        font-family: Arial, sans-serif;
+    }
+
+
+    #content{
+        
+        align-items: center;
+        max-width: 300px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        height: 400px;
+        background-color: black;
+        opacity: 0.8;
+    }
+
+    #login-icons{
+        width: 20px;
+        height: 20px;
+    }
+
+    button{
+        background-color: #333;
+        opacity: 1;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 10px 20px;
+        border-radius: 5px;
+        margin-top: 10px;
+        transition: white 0.3s ease-in-out;
+    }
+
+    button:hover{
+        background-color: white;
+        color: black;
+        transform: scale(1.1);
+    }
+
+
+</style>
+
+
+<body>
+    <div id="content">
+    <h1>Login</h1>
+   
+    <form action="">
+        {% csrf_token %}
+        <label for="username">Username</label><br>
+        <input type="text" id="username" name="username" required><br>
+        <label for="password">Password</label><br>
+        <input type="password" id="password" name="password" required><br>
+        <button type="submit" value="Login">Login</button>
+        <p>Don't Have an Account?<a href="{% url 'register' %}">Sign Up</a></p>
+
+        <button>Login with <img id="login-icons" src={% static "images/xbox.png" %} alt="soemtin"></button>
+        <button>Login with <img id="login-icons" src={% static "images/google.png" %} alt="soemtin"></button>
+        <button>Login with <img id="login-icons" src={% static "images/facebook.png" %} alt="soemtin"></button>
+    </form>
+</div>
+</body>
+
+     <script>
+        let form = document.querySelector('form');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        form.addEventListener('submit', function(event) {
+            console.log("Preventing Page reload");
+            event.preventDefault();
+
+            let username = document.getElementById('username').value;
+            let password = document.getElementById('password').value;
+            console.log("Username is "+username);
+            console.log("Password is "+password);
+            var response = fetch('/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            })
+
+            .then(response => response.json())
+            .then(data => {
+                console.log("Data is this"+data);
+                if(data.access_token){
+                    localStorage.setItem('authToken', data.access_token);
+                    console.log("Token is "+data.access_token);
+                    window.location.href = "/";
+                }
+            })
+        })
+
+
+        </script>
+</html>

@@ -1,0 +1,129 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url({% static 'images/mountain.jpg' %});
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            color: white;
+        }
+        #container {
+            align-items: center;
+            text-align: center;
+            width: 400px;
+            margin: 20vh 10px 10px 65vh;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: black;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <h1>Profile Page</h1>
+        <h3>Username</h3>
+        <input type="text" name="username" id="username">
+        <br>
+        <h3>Email</h3>
+        <input type="email" name="email" id="email">
+        <br>
+        <h3>Bio</h3>
+        <textarea name="bio" id="bio"></textarea>
+        <br>
+        <h3>Profile Picture</h3>
+        <input type="file" name="profile_pic" id="profile">
+        <div id="profileImage"></div>
+        <br>
+        <h3>Password</h3>
+        <input type="password" name="password" id="password" value=""><br>
+        <br>
+        <button>Update</button>
+    </div>
+
+    <script>
+        var token = localStorage.getItem('authToken');
+        var baseUrl = window.location.origin; 
+        var username = document.querySelector('#username');
+        var email = document.querySelector('#email');
+        var bio = document.querySelector('#bio');  // You missed declaring this
+        var profile = document.querySelector('#profile');
+        var password = document.querySelector('#password');
+        const profileImage = document.getElementById('profileImage');
+
+        console.log(token);
+
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch(baseUrl + '/API/profile/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())  // Parse the JSON response
+            .then(data => {
+                console.log("Response Data: ", data);
+                username.value = data.username;
+                email.value = data.email;
+                bio.value = data.bio;
+
+                if (data.profile) {
+                    // If you want to show the profile picture in an <img> tag, use this:
+                    const profileimage = document.createElement('img');
+                    profileimage.src = data.profile; 
+                    profileimage.style = "width: 80px; height: 80px;";
+                    profileImage.appendChild(profileimage); // You can append it somewhere appropriate
+                }
+            })
+            .catch(error => {
+                console.error("Error: ", error);
+            });
+        });
+
+        document.querySelector('button').addEventListener('click', function() {
+            console.log("Clicked the button");
+
+            // Create a new FormData object
+            const formData = new FormData();
+            formData.append('username', username.value);
+            formData.append('email', email.value);
+            formData.append('bio', bio.value);
+            formData.append('profile_pic', profile.files[0] || null);  // For file upload
+            formData.append('profile', profile.value);
+            formData.append('password', password.value);
+
+            fetch(baseUrl + '/API/profile/', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,  // Sending the token for authentication
+                    'X-CSRFToken': '{{ csrf_token }}'  // CSRF token for security (use Django templating for dynamic CSRF token)
+                },
+                body: formData,  // Send the FormData object as the body
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Response Data:", data);
+                // Optionally, handle any post-submit logic here
+                window.location.href = "/";  // Redirect to the homepage after successful update
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        });
+    </script>
+
+</body>
+</html>
