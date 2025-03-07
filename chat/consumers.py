@@ -1,3 +1,4 @@
+import time
 import datetime
 import json
 from channels.generic.websocket import WebsocketConsumer
@@ -102,12 +103,16 @@ class MyConsumer(WebsocketConsumer):
 
     def chat_message(self, event):
         message = event['message']
+        time_stamp=time.time()
+        time_stamp = time.strftime('%H:%M:%S', time.localtime(time_stamp))
+        print("Timestamp of the message received:", time_stamp)
         user = event['user']
         print("The user fromt he event message is ",user)
         print("The username is *****",self.user.username)
         self.send(text_data=json.dumps({
             'type':'message_received',
             'message': message,
+            'timestamp': time_stamp,
             'username': user,
         }))
 
