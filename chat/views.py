@@ -106,10 +106,24 @@ class PeopleAPIView(APIView):
     def get(self, request):
         user= request.user
         users = UserProfile.objects.exclude(user=user)
-        print("The users are ",users)
+        user_profile = UserProfile.objects.get(user=user)
+        
+        friends = user_profile.friends
+        friends = UserProfileSerializer(friends,many=True)
+        print("The users friends are: ",friends.data)
+        friendsrequested = user_profile.friendsrequested
+
+        friendrequests = user_profile.friendrequests
+
+        friendrequests = UserProfileSerializer(friendrequests,many=True)
+        print("The friend requests are",friendrequests.data)
+
+        
+        friendsrequested = UserProfileSerializer(friendsrequested, many=True)
+        print("The users requested are ",friendsrequested.data)
         users = UserProfileSerializer(users, many=True)
-        print("The users are ",users.data)
-        return Response({"user_profiles": users.data})
+        
+        return Response({"user_profiles": users.data, "friends": friends.data, "friendsrequested": friendsrequested.data,"friendrequests": friendrequests.data})
 
 
 class ProfileView(View):
@@ -168,21 +182,26 @@ class AboutView(View):
     
 class FriendRequestView(View):
     def get(self, request):
+        
         return render(request, 'requests.html')
+
 
 class FriendRequestAPIView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication, SessionAuthentication, BasicAuthentication]
     def get(self, request):
         user= request.user
+        print("The user is %s" % user)
         friend_requests = UserProfile.objects.get(user=user).friendrequests
+        print("Friend requests: ",friend_requests)
+        
         friend_requests = UserProfileSerializer(friend_requests, many=True)
-        return Response({"friend_requests": friend_requests.data})
+        return Response({"requests": friend_requests.data})
     
     def post(self, request):
         user= request.user
         user_id = request.data.get('addFriend')
-
+        user_profile = UserProfile.objects.get(user=user)
 
         friend = request.data.get('addFriend')
         print("The id is: ",user_id)
@@ -191,10 +210,60 @@ class FriendRequestAPIView(APIView):
         print("The friend is: ",friend)
         if friend:
             friend = UserProfile.objects.get(user=friend)
-            friend.friendrequests.add(user)
-            friend.save()
+            print("The firend is ",friend)
+            if friend not in user.friends.all():
+                user_profile.friendsrequested.add(friend.user)
+                friend.friendrequests.add(user)
+                friend.save()
+            else:
+                return Response({"error": "Hes Already a Friedn!"}, status=400)
 
         
             return Response({"success": "Friend request sent successfully!"})
+        else:
+            return Response({"error": "User not found!"}, status=404)
+        
+
+
+class FriendsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication, SessionAuthentication, BasicAuthentication]
+
+    def get(self, request):
+        user= request.user
+        print("The user is %s" % user)
+        friends = UserProfile.objects.get(user=user).friends
+        
+        friends = UserProfileSerializer(friends, many=True)
+        return Response({"friends": friends.data})
+    def post(self,request):
+        user= request.user
+        user_id = request.data.get('addFriend')
+        friend = User.objects.get(user=user_id)
+        print("The id is: ",user_id)
+        user = UserProfile.objects.get(user=user)
+        UserProfile.friends.add(friend)
+        UserProfile.friendrequests.remove(friend)
+        print("The firends are",user.friends)
+        
+    def put(self,request):
+        ##** Here the request user is accepting friend request
+        ##** The friend has requested it so adding him to friends and removing the request
+        user= request.user
+        user_profile = UserProfile.objects.get(user=user)
+        friend_id = request.data.get('addFriend')
+        friend = User.objects.get(id=friend_id)
+        print("The id is: ",friend_id)
+        if friend:
+            print("Inside Friend",friend)
+            friend = UserProfile.objects.get(user=friend)
+            print("The firend is ",friend.username)
+            user_profile.friends.add(friend.user)
+            friend.friends.add(user)
+            friend.friendsrequested.remove(user_profile.user)
+            user_profile.friendrequests.remove(friend.user)
+            
+            friend.save()
+            return Response({"success": "Friend added successfully!"})
         else:
             return Response({"error": "User not found!"}, status=404)
