@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #chat-container {
+            background-color: white;
+            width: 600px; /* Increased size for container */
+            height: 80vh; /* 80% of the viewport height */
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            background-color: #007bff;
+            color: white;
+            margin: 0;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            border-radius: 10px 10px 0 0;
+        }
+
+        #messages {
+            flex: 1;
+            overflow-y: scroll; /* Enables vertical scroll */
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            max-height: calc(100% - 100px); /* Ensure this div doesn't overflow out of container */
+        }
+
+        .message {
+            background-color: #f1f1f1;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .message p {
+            margin: 0;
+        }
+
+        #form {
+            display: flex;
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 0 0 10px 10px;
+        }
+
+        #message {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        #message:focus {
+            border-color: #007bff;
+        }
+
+        #send-btn {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #send-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <h1>Group Chat</h1>
+        <div id="messages"></div>
+        <form id="form">
+            <input type="text" id="message" name="message" placeholder="Type your message..." required>
+            <button type="submit" id="send-btn">Send</button>
+        </form>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('authToken');
+        const roomName = "{{ room_name }}";
+        console.log(roomName);
+        
+        let url = `ws://${window.location.host}/ws/group-server/${roomName}/?token=${encodeURIComponent(token)}`;
+        const groupSocket = new WebSocket(url);
+
+        groupSocket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            console.log('data', data);
+
+            if (data.type === 'chat') {
+                let messages = document.getElementById('messages');
+
+                // Create a new div element for the message
+                let newMessage = document.createElement('div');
+                newMessage.classList.add('message');
+
+                // Create a new paragraph element with the message content
+                let messageText = document.createElement('p');
+                messageText.textContent = `${data.text} - ${data.user2}`;
+
+                // Append the paragraph to the div
+                newMessage.appendChild(messageText);
+
+                // Insert the new div element into the 'messages' container
+                messages.insertAdjacentElement('beforeend', newMessage);
+
+                // Auto-scroll to the bottom of the messages
+                messages.scrollTop = messages.scrollHeight;
+            }
+        }
+
+        const baseUrl = window.location.origin;
+
+        let form = document.getElementById('form');
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            fetch(baseUrl + '/API/verify_token/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to verify token');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.user_profile) {
+                    let message = document.getElementById('message').value;
+                    console.log('Message:', message);
+
+                    groupSocket.send(JSON.stringify({
+                        'message': message,
+                        'user': data.user_profile.username
+                    }));
+
+                    form.reset();
+                } else {
+                    console.error('User profile not found in response.');
+                }
+            })
+            .catch(error => {
+                console.error('Error verifying token or sending message:', error);
+            });
+        });
+    </script>
+</body>
+</html>
