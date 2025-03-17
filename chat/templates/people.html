@@ -1,266 +1,353 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
-        body {
-            background-image: url({% static 'images/group.jpg' %});
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            background-position: center;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-        
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 10px 0;
-        }
+      body {
+        background-image: url({% static 'images/group.jpg' %});
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center;
+        color: white;
+        font-family: "Press Start 2P", cursive, sans-serif;
+      }
+      header {
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 20px 0;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        left: 0;
+        z-index: 100;
+      }
 
-        #logo {
-            position: fixed;
-            left: 10px;
-            top: 10px;
-            font-size: 1.5em;
-        }
+      #logo {
+        position: absolute;
+        left: 20px;
+        top: 20px;
+      }
 
-        nav {
-            float: right;
-        }
+      #logo img {
+        width: 60px;
+        height: 60px;
+        border-radius: 10px;
+      }
 
-        .nav-links {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-        }
+      nav {
+        float: right;
+        margin-right: 20px;
+      }
 
-        .nav-links li {
-            display: inline-block;
-            margin-left: 20px;
-        }
+      .nav-links {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+      }
 
-        .nav-links li a {
-            color: #fff;
-            text-decoration: none;
-            padding: 10px 15px;
-            display: inline-block;
-            transition: background-color 0.3s;
-        }
+      .nav-links li {
+        margin-left: 20px;
+      }
 
-        .nav-links li a:hover {
-            background-color: #555;
-        }
+      .nav-links li a {
+        color: #fff;
+        text-decoration: none;
+        padding: 12px 20px;
+        display: inline-block;
+        border-radius: 5px;
+        font-size: 1.1em;
+        transition: background-color 0.3s ease, transform 0.2s;
+      }
 
-        .user-card {
-            background-color: rgba(255, 255, 255, 0.5);
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 20px;
-            width: 250px;
-            
-            display: inline-block;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+      .nav-links li a:hover {
+        background-color: #555;
+        transform: scale(1.05);
+      }
 
-        
+      .container {
+        margin-top: 100px; /* Adjust content position due to fixed header */
+        padding: 20px;
+        text-align: center;
+      }
 
-        .user-card img.profile-pic {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 10px;
-        }
-        .user-card .username {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 8px;
-            opacity: 1;
-        }
-    
-        .user-card .bio,
-        .user-card .email {
-            font-size: 1em;
-            color: #666;
-        }
+      .user-card {
+        background-color: rgba(255, 255, 255, 0.5);
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 20px;
+        width: 250px;
 
+        display: inline-block;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
 
-        .user-card:hover{
-            background-color: rgba(255, 255, 255, 1);
-            color: white;
-            transform: scale(1.1);
-            transition: 0.3s ease-in;
-        }
+      .user-card img.profile-pic {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 10px;
+      }
+      .user-card .username {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 8px;
+        opacity: 1;
+      }
+
+      .user-card .bio,
+      .user-card .email {
+        font-size: 1em;
+        color: #666;
+      }
+
+      .user-card:hover {
+        background-color: rgba(255, 255, 255, 1);
+        color: white;
+        transform: scale(1.1);
+        transition: 0.3s ease-in;
+      }
+
+      .friend-request-sent {
+        background-color: red;
+        text-decoration: none;
+      }
+      .friend {
+        background-color: green;
+        text-decoration: none;
+      }
+      .friend-request-recieved {
+        background-color: blue;
+        text-decoration: none;
+      }
     </style>
-</head>
+  </head>
 
-
-<body>
+  <body>
     <header>
-        <div class="container">
-            <div id="logo">
-                <img style="width: 80px; height: 80px;" src="{% static 'images/esport.avif' %}" alt="">
-            </div>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/about/">About</a></li>
-                    <li><a href="/people/">Meet New People</a></li>
-                    <li><a href="#">My Requests</a></li>
-                    
-                    <li><a href="/profile/">
-                        <img id="profile_pic" style="width:40px; height:40px;" 
-                        src="{% static 'images/user.png'%}" alt="">
-                    </a></li>
-                </ul>
-            </nav>
+    
+        <div id="logo">
+          <img
+            style="width: 80px; height: 80px"
+            src="{% static 'images/esport.avif' %}"
+            alt=""
+          />
         </div>
+        <nav>
+          <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/about/">About</a></li>
+            <li><a href="/people/">Meet New People</a></li>
+            <li><a href="/requests/">My Requests</a></li>
+
+            <li>
+              <a href="/profile/">
+                <img
+                  id="profile_pic"
+                  style="width: 40px; height: 40px"
+                  src="{% static 'images/user.png'%}"
+                  alt=""
+                />
+              </a>
+            </li>
+          </ul>
+        </nav>
+    
     </header>
-    <h1>Make New Friends</h1>
-    <div id="content">
+
+    <div class="container">
+      <h1>Make New Friends</h1>
+      <div id="content">
         <h1>Somehtin</h1>
+      </div>
     </div>
 
-
     <script>
-        const baseUrl = window.location.origin;
-        const token = localStorage.getItem('authToken');
-        document.addEventListener('DOMContentLoaded', function(){
-            if (!token) {
-                window.location.href = '/login/';
+      const baseUrl = window.location.origin;
+      const token = localStorage.getItem("authToken");
+      let friends = [];
+      let friendrequests = [];
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!token) {
+          window.location.href = "/login/";
+        }
+        var response = fetch(baseUrl + "/API/verify_token/", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status_code === 401) {
+              window.alert("Session Expired. Please login again");
+              window.location.href = "/login/";
+            } else {
+              console.log("Token verified");
+              console.log("Data is " + data.user_profile.username);
             }
-            var response = fetch(
-                baseUrl+'/API/verify_token/',
-                {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                }
-            )
-            .then(response => response.json())
-            .then(data => {
-                if (data.status_code === 401) {
-                    window.alert('Session Expired. Please login again');
-                    window.location.href = '/login/';
-                }
-                else {
-                    console.log('Token verified');
-                    console.log("Data is " + data.user_profile.username);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                window.alert('An error occurred while verifying the token. Please try again later.');
-                window.location.href = '/login/';
-            });
-    
-            var response = fetch(
-                baseUrl+'/API/people/',
-                {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                }
-            )
-            .then(response => response.json())
-            .then(data => {
-                console.log("Number of users: ", data.user_profiles.length);
-                var content = document.getElementById('content');
-                // Loop through the users and display them
-                data.user_profiles.forEach(user => {
-                    var card = document.createElement('div');
-                    card.classList.add('user-card');
-                    
-                    var profilePic = document.createElement('img');
-                    profilePic.src = user.profile_pic;
-                    profilePic.alt = user.username + "s profile picture";
-                    profilePic.classList.add('profile-pic');
-    
-                    var username = document.createElement('h3');
-                    username.innerHTML = user.username;
-                    username.classList.add('username');
-    
-                    var email = document.createElement('p');
-                    email.innerHTML = user.email;
-                    email.classList.add('email');
-    
-                    var bio = document.createElement('p');
-                    bio.innerHTML = user.bio;
-                    bio.classList.add('bio');
-    
-                    var addFriend = document.createElement('a');
-                    addFriend.href = '#';
-                    addFriend.innerHTML = 'Add Friend';
-                    addFriend.classList.add('add-friend-button');
-                    addFriend.dataset.userId = user.id; // Store the user id in a data attribute
-    
-                    card.appendChild(profilePic);
-                    card.appendChild(username);
-                    card.appendChild(email);
-                    card.appendChild(bio);
-                    card.appendChild(addFriend); 
-                    content.appendChild(card);
-                });
-    
-                // Now that the user cards are in the DOM, add event listeners to the buttons
-                const addFriendButtons = document.querySelectorAll('.add-friend-button');
-    
-                addFriendButtons.forEach(button => {
-                    button.addEventListener('click', function(event){
-                        event.preventDefault();  // Prevent the default link behavior
-                        const userId = button.dataset.userId;  // Get the user id from the data attribute
-                        
-                        console.log('Adding friend with user ID: ' + userId);
-    
-                        // Send the friend request using the userId
-                        fetch(
-                            baseUrl + '/API/frndrqst/',
-                            {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${token}`
-                                },
-                                body: JSON.stringify({
-                                    'addFriend': userId  // Send the user ID to the API
-                                })
-                            }
-                        )
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                console.log('Friend request sent successfully!');
-                                button.innerHTML = 'Friend Request Sent';
-                                button.disabled = true; // Disable the button after the request
-                            } else {
-                                console.log('Failed to send friend request');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            window.alert('An error occurred while sending the friend request. Please try again later.');
-                        });
-                    });
-                });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                window.alert('An error occurred while fetching the data. Please try again later.');
-            });
-        });
-    </script>
-    
-</body>
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            window.alert(
+              "An error occurred while verifying the token. Please try again later."
+            );
+            window.location.href = "/login/";
+          });
 
+        var response = fetch(baseUrl + "/API/people/", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Number of users: ", data.user_profiles.length);
+            var content = document.getElementById("content");
+            // Loop through the users and display them
+            data.user_profiles.forEach((user) => {
+              var card = document.createElement("div");
+              card.classList.add("user-card");
+
+              var profilePic = document.createElement("img");
+              profilePic.src = user.profile_pic;
+              profilePic.alt = user.username + "s profile picture";
+              profilePic.classList.add("profile-pic");
+
+              var username = document.createElement("h3");
+              username.innerHTML = user.username;
+              username.classList.add("username");
+
+              var email = document.createElement("p");
+              email.innerHTML = user.email;
+              email.classList.add("email");
+
+              var bio = document.createElement("p");
+              bio.innerHTML = user.bio;
+              bio.classList.add("bio");
+
+              var addFriend = document.createElement("a");
+              addFriend.href = "#";
+              console.log("The user size is " + user.user.username);
+
+              addFriend.innerHTML = "Add Friend";
+              addFriend.classList.add("add-friend-button");
+              addFriend.dataset.userId = user.id; // Store the user ID in a data attribute
+
+              data.friendsrequested.forEach((friendRequest) => {
+                console.log("The user" + friendRequest.username);
+                if (friendRequest.username === user.user.username) {
+                  addFriend.innerHTML = "Friend Request Sent";
+                  addFriend.classList.add("friend-request-sent");
+                }
+              });
+              /*
+                    data.friendrequests.forEach(friendRequest =>{
+                        console.log("THe user"+friendRequest.username);
+                        addFriend.innerHTML = 'Friend=request-recieved';
+                        addFriend.classList.add('friend-request-recieved');
+                    })
+*/
+
+              data.friends.forEach((friend) => {
+                console.log("The user" + friend.username);
+                if (friend.username === user.user.username) {
+                  addFriend.innerHTML = "Friend";
+                  addFriend.classList.add("friend");
+                }
+              });
+
+              /*
+                    
+                    if (data.friends.some(friend => friend.username === user.user.username)) {
+                        addFriend.innerHTML = 'Already Friend';
+                        addFriend.classList.add('friend-request-sent');
+                    }
+                    // Check if the user is in `data.friendrequests`
+                    else if (data.friendrequests.some(request => request.username === user.user.username)) {
+                        addFriend.innerHTML = 'Friend Request Sent';
+                        addFriend.classList.add('friend-request-sent');
+                    }
+                    // If the user is not in either list
+                    else {
+                        addFriend.innerHTML = 'Add Friend';
+                        addFriend.classList.add('add-friend-button');
+                        addFriend.dataset.userId = user.id; // Store the user ID in a data attribute
+                    }
+*/
+
+              card.appendChild(profilePic);
+              card.appendChild(username);
+              card.appendChild(email);
+              card.appendChild(bio);
+              card.appendChild(addFriend);
+              content.appendChild(card);
+            });
+
+            // Now that the user cards are in the DOM, add event listeners to the buttons
+            const addFriendButtons =
+              document.querySelectorAll(".add-friend-button");
+
+            addFriendButtons.forEach((button) => {
+              button.addEventListener("click", function (event) {
+                event.preventDefault(); // Prevent the default link behavior
+                const userId = button.dataset.userId; // Get the user id from the data attribute
+
+                console.log("Adding friend with user ID: " + userId);
+
+                // Send the friend request using the userId
+                fetch(baseUrl + "/API/frndrqst/", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: JSON.stringify({
+                    addFriend: userId, // Send the user ID to the API
+                  }),
+                })
+                  .then((response) => response.json())
+                  .then((data) => {
+                    if (data.success) {
+                      console.log("Friend request sent successfully!");
+                      button.innerHTML = "Friend Request Sent";
+                      button.disabled = true; // Disable the button after the request
+                    } else {
+                      console.log("Failed to send friend request");
+                      window.alert("Error!", error);
+                    }
+                  })
+                  .catch((error) => {
+                    console.error("Error:", error);
+                  });
+              });
+            });
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            window.alert(
+              "An error occurred while fetching the data. Please try again later."
+            );
+          });
+      });
+    </script>
+  </body>
 </html>
