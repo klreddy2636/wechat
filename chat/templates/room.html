@@ -98,13 +98,30 @@
 
         
         .user{
-            position: absolute;
-            display: inline-block;
+            
             margin: 10px;
             padding: 5px;
             background-color: #f1f1f1;
             border-radius: 5px;
             font-size: 16px;
+        }
+
+
+        .overview{
+            display: none;
+
+            transform: translateY(-50%);
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            width: auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            fontsize: 14px;
+        }
+
+        .user::hover .overview{
+            display: block;
         }
     </style>
 </head>
@@ -154,18 +171,33 @@
             members.forEach(member => {
                 console.log("THe member name",member.username)
                 const userDiv = document.createElement('div');
+                console.log("The email",member.email)
+                console.log("The bio of the user is",member.bio)
                 userDiv.classList.add('user')
 
-                userDiv.innerHTML = `<h3>${member.username}</h3>`
-                memberdiv.append(userDiv);
+                userDiv.innerHTML = `
+                <h3>${member.username}</h3>
+                <div class="overview">
+                    <p><strong>Name:</strong> ${member.username}</p>
+                    <p><strong>Email:</strong> ${member.email}</p>
+                    <p><strong>Bio:</strong> ${member.bio || 'Active'}</p>
+
+                </div>
+            `;
+            memberdiv.append(userDiv);
 
                 userDiv.addEventListener("mouseover", (event) => {
+                    
+                    const tooltip = userDiv.querySelector('.overview');
                     userDiv.style.backgroundColor = "yellow"; // Change background to yellow
-
+                    console.log("Mouse over so blockin the dispplaty")
+                    tooltip.style.display = 'block';
                 });
         
                 userDiv.addEventListener("mouseout", (event) => {
                     userDiv.style.backgroundColor = ""; // Revert back to original color
+                    const tooltip = userDiv.querySelector('.overview');
+                tooltip.style.display = 'none';
                 });
             })
         })
