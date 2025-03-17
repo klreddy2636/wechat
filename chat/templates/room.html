@@ -89,9 +89,33 @@
         #send-btn:hover {
             background-color: #0056b3;
         }
+
+
+        #container{
+            width: 500px;
+        }
+
+
+        
+        .user{
+            position: absolute;
+            display: inline-block;
+            margin: 10px;
+            padding: 5px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
+    <div id="container">
+        <h1>Group Menbers</h1>
+        <div id="memebers">
+
+        </div>
+
+    </div>
     <div id="chat-container">
         <h1>Group Chat</h1>
         <div id="messages"></div>
@@ -103,8 +127,55 @@
 
     <script>
         let token = localStorage.getItem('authToken');
+        const baseUrl = window.location.origin;
         const roomName = "{{ room_name }}";
         console.log(roomName);
+        let members = [];
+        let memberdiv = document.getElementById('memebers');
+        memberdiv.innerHTML='';
+
+        var response = fetch(
+            baseUrl+"/API/room/?room_name="+roomName, {
+                method: 'GET',
+                headers: {
+                    Authorization: 'Bearer '+token,
+                }
+            }
+        )
+        .then(response => {
+            if(!response.ok){
+                console.log("THe error is "+repsonse.statusText);
+            }
+            return response.json();
+        })
+        .then(data=>{
+            console.log("THe data is"+data.users);
+            members = data.users;
+            members.forEach(member => {
+                console.log("THe member name",member.username)
+                const userDiv = document.createElement('div');
+                userDiv.classList.add('user')
+
+                userDiv.innerHTML = `<h3>${member.username}</h3>`
+                memberdiv.append(userDiv);
+
+                userDiv.addEventListener("mouseover", (event) => {
+                    userDiv.style.backgroundColor = "yellow"; // Change background to yellow
+
+                });
+        
+                userDiv.addEventListener("mouseout", (event) => {
+                    userDiv.style.backgroundColor = ""; // Revert back to original color
+                });
+            })
+        })
+        .catch(error=>{
+            console.error("Error",error);
+        })
+        console.log("The repsone is THis"+response);
+        console.log("The users are ",members.user);
+
+        
         
         let url = `ws://${window.location.host}/ws/group-server/${roomName}/?token=${encodeURIComponent(token)}`;
         const groupSocket = new WebSocket(url);
@@ -135,7 +206,7 @@
             }
         }
 
-        const baseUrl = window.location.origin;
+        
 
         let form = document.getElementById('form');
         form.addEventListener('submit', function (event) {
