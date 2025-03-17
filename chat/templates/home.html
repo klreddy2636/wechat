@@ -2,274 +2,626 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+ 
+    <!-- Bootstrap JS and Popper.js (required for Bootstrap's interactive components) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+
+
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        body {
-            background-image: url({% static 'images/inferno.jpg' %});
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            background-position: center;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
+      body {
+        margin: 0;
+        padding: 0;
+        background-image: url({%static "images/inferno.jpg"%});
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center;
+        color: white;
+        font-family: 'Press Start 2P', cursive, sans-serif;
+      }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            overflow: hidden;
-        }
+      header {
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 20px 0;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        left: 0;
+        z-index: 100;
+    }
+    
+    #logo {
+        position: absolute;
+        left: 20px;
+        top: 20px;
+    }
 
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 10px 0;
-        }
+    #logo img {
+        width: 60px;
+        height: 60px;
+        border-radius: 10px;
+    }
 
-        #logo {
-            position: fixed;
-            left: 10px;
-            top: 10px;
-            font-size: 1.5em;
-        }
+    nav {
+        float: right;
+        margin-right: 20px;
+    }
 
-        nav {
-            float: right;
-        }
+    .nav-links {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+    }
 
-        .nav-links {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-        }
+    .nav-links li {
+        margin-left: 20px;
+    }
 
-        .nav-links li {
-            display: inline-block;
-            margin-left: 20px;
-        }
+    .nav-links li a {
+        color: #fff;
+        text-decoration: none;
+        padding: 12px 20px;
+        display: inline-block;
+        border-radius: 5px;
+        font-size: 1.1em;
+        transition: background-color 0.3s ease, transform 0.2s;
+    }
 
-        .nav-links li a {
-            color: #fff;
-            text-decoration: none;
-            padding: 10px 15px;
-            display: inline-block;
-            transition: background-color 0.3s;
-        }
+    .nav-links li a:hover {
+        background-color: #555;
+        transform: scale(1.05);
+    }
 
-        .nav-links li a:hover {
-            background-color: #555;
-        }
 
-        .content {
-            padding: 50px 0;
-            text-align: center;
-        }
+    h1 {
+        font-size: 2.5em;
+        margin-bottom: 30px;
+        font-weight: 700;
+    }
 
-        #content {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            overflow-y: scroll;
-            height: 300px;
-            background-color: black;
-            opacity: 0.8;
-        }
+    #requestsList {
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 50px;
+    }
 
-        input {
-            max-width: 800px;
-            width: 100%;
-            color: white;
-            background-color: black;
-            padding: 10px;
-        }
+    h2 {
+        font-size: 2em;
+        margin-bottom: 15px;
+    }
 
-        button {
-            padding: 10px 20px;
-            background-color: black;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
+    /* Request List Styles */
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
 
-        #playersList {
-            position: absolute;
-            left: 0;
-            max-width: 200px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            overflow-y: scroll;
-            height: 300px;
-            background-color: black;
-            opacity: 0.8;
-        }
+    li {
+        background-color: rgba(255, 255, 255, 0.2);
+        margin-bottom: 15px;
+        padding: 15px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.3s ease;
+    }
 
-        /* New styling for message input, send button container */
-        #input-container {
-            display: flex;
-            justify-content: space-between;
-            max-width: 800px;
-            margin: 20px auto;
-        }
+    li:hover {
+        transform: scale(1.05);
+    }
 
-        #input-container input {
-            flex: 1;
-            margin-right: 10px;
-        }
+      .content {
+        padding: 50px 0;
+        text-align: center;
+      }
 
-        #input-container button {
-            width: 100px;
-        }
+      #content {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        overflow-y: scroll;
+        height: 300px;
+        background-color: black;
+        opacity: 0.8;
+      }
+
+      input {
+        max-width: 800px;
+        width: 100%;
+        color: white;
+        background-color: black;
+        padding: 10px;
+      }
+
+      button {
+        padding: 10px 20px;
+        background-color: black;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      #playersList {
+        position: absolute;
+        left: 0;
+        max-width: 200px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        overflow-y: scroll;
+        height: 300px;
+        background-color: black;
+        opacity: 0.8;
+      }
+
+      /* New styling for message input, send button container */
+      #input-container {
+        display: flex;
+        justify-content: space-between;
+        max-width: 800px;
+        margin: 20px auto;
+      }
+
+      #input-container input {
+        flex: 1;
+        margin-right: 10px;
+      }
+
+      #input-container button {
+        width: 100px;
+      }
+
+
+
+      main{
+        margin-top: 150px;
+      }
+
+
+      .press-start-2p-regular {
+        font-family: "Press Start 2P", system-ui;
+        font-weight: 400;
+        font-style: normal;
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      /*Drodpown menu*/
+      .dropbtn {
+        background-color: #04AA6D;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+      }
+      
+      /* The container <div> - needed to position the dropdown content */
+      .dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      
+      /* Dropdown Content (Hidden by Default) */
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f1f1f1;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+      }
+      
+      /* Links inside the dropdown */
+      .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+      }
+      
+      /* Change color of dropdown links on hover */
+      .dropdown-content a:hover {background-color: #ddd;}
+      
+      /* Show the dropdown menu on hover */
+      .dropdown:hover .dropdown-content {display: block;}
+      
+      /* Change the background color of the dropdown button when the dropdown content is shown */
+      .dropdown:hover .dropbtn {background-color: #3e8e41;}
+      
     </style>
-</head>
 
-<body>
+
+
+  </head>
+
+  <body>
     <header>
-        <div class="container">
-            <div id="logo">
-                <img style="width: 80px; height: 80px;" src="{% static 'images/esport.avif' %}" alt="">
-            </div>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="#">Home</a></li>
-                    <li><a href="/about/">About</a></li>
-                    <li><a href="/people/">Meet New People</a></li>
-                    <li><a href="#">My Requests</a></li>
-                    
-                    <li><a href="/profile/">
-                        <img id="profile_pic" style="width:40px; height:40px;" 
-                        src="{% static 'images/user.png'%}" alt="">
-                    </a></li>
-                </ul>
-            </nav>
+      
+        <div id="logo">
+          <img
+            style="width: 80px; height: 80px"
+            src="{% static 'images/esport.avif' %}"
+            alt=""
+          />
         </div>
-    </header>
-    
-    <h1 id="greetings"></h1>
+        <nav>
+          <ul class="nav-links">
+            <li><a href="#">Home</a></li>
+            <li><a href="/about/">About</a></li>
+            <li><a href="/people/">Meet New People</a></li>
+            <li><a href="/requests/">My Requests</a></li>
+            
+            <li>
+              <div class="dropdown">
+                <button class="dropbtn" id="createRoomBtn">Create Room +</button>
+                <div class="dropdown-content">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Groups
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" id="userGroups">
+                          
+                        </ul>
+                </div>
 
-    <h1>Game Room Forum</h1>
-    <h3>Global Chat</h3>
-    
+                
+              </div>
+            </li>
+           
+              
+
+         
+            <li>
+              <a href="/profile/">
+                <img
+                  id="profile_pic"
+                  style="width: 40px; height: 40px"
+                  src="{% static 'images/user.png'%}"
+                  alt=""
+                />
+              </a>
+            </li>
+
+
+            
+          </ul>
+        </nav>
+      
+    </header>
+    <div class="modal fade" id="createRoomModal" tabindex="-1" aria-labelledby="createRoomModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createRoomModalLabel">Create Room</h5>
+                
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="roomName" class="form-label">Room Name</label>
+                    <input type="text" class="form-control" id="roomName"
+                        placeholder="Enter Room Name">
+                </div>
+
+                <h5>Select Users to Add:</h5>
+                <ul class="list-group" id="userList">
+
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                    data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="createRoom">Create Room</button>
+            </div>
+        </div>
+    </div>
+</div>
+<main>
+  
+
+    <h2 id="greetings"></h2>
+
+    <h2>Game Room Forum</h2>
+    <h4>Global Chat</h4>
 
     <h3 id="players">Players Online</h3>
 
     <div id="global-chat">
-        <div id="playersList">
-            <h1>Players List</h1>
+      <div id="playersList">
+        <h5>Players List</h5>
+      </div>
+      <div id="content">
+        <h2>Messages</h2>
+      </div>
+      <form id="form">
+        {% csrf_token %}
+        <div id="input-container">
+          <input
+            id="globalChat"
+            type="text"
+            name="message"
+            placeholder="Type a message..."
+            required
+          />
+          <button type="submit">Send</button>
         </div>
-        <div id="content">
-            <h2>Messages</h2>
-        </div>
-        <form id="form">
-            {% csrf_token %}
-            <div id="input-container">
-                <input id="globalChat" type="text" name="message" placeholder="Type a message..." required/>
-                <button type="submit">Send</button>
-            </div>
-        </form>
+      </form>
     </div>
+  </main>
+  
 
     <script type="text/javascript">
-
-        var baseUrl = window.location.origin;
-        let greetings = document.getElementById('greetings');
-        let profile_pic = document.getElementById('profile_pic');
-        document.addEventListener('DOMContentLoaded', function () {
-            const token = localStorage.getItem('authToken');
-            if (!token) {
-                window.location.href = '/login/';
+      var baseUrl = window.location.origin;
+      let greetings = document.getElementById("greetings");
+      let profile_pic = document.getElementById("profile_pic");
+    
+      document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          window.location.href = "/login/";
+        }
+        var response = fetch(baseUrl + "/API/verify_token/", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status_code === 401) {
+              window.alert("Session Expired. Please login again");
+              window.location.href = "/login/";
+            } else {
+              console.log("Token verified");
+              console.log("Data is " + data.user_profile.username);
+              greetings.innerHTML = `Welcome ${data.user_profile.username}`;
+              profile_pic.src = data.user_profile.profile_pic;
+              const userListContainer = document.getElementById("userList");
+ 
+                        // Loop through all users and create a list item for each
+                        data.allUsers.forEach(user => {
+                            const listItem = document.createElement("li");
+                            listItem.classList.add("list-group-item");
+ 
+                            // Create checkbox input for each user
+                            const checkbox = document.createElement("input");
+                            checkbox.type = "checkbox";
+                            checkbox.id = `user${user.id}`;
+                            checkbox.value = user.id;
+ 
+                            // Create the label for the checkbox
+                            const label = document.createElement("label");
+                            label.setAttribute("for", `user${user.id}`);
+                            label.textContent = user.username;
+ 
+                            // Optionally add profile picture (if you need)
+                            const profilePic = document.createElement("img");
+                            profilePic.src = user.profile_pic;
+                            profilePic.alt = `${user.username}'s profile picture`;
+                            profilePic.style.width = "30px"; // Just for the sake of styling, adjust as needed
+                            profilePic.style.marginRight = "10px";
+ 
+                            // Append the profile picture, checkbox, and label to the list item
+                            listItem.appendChild(profilePic);
+                            listItem.appendChild(checkbox);
+                            listItem.appendChild(label);
+ 
+                            // Append the list item to the user list container
+                            userListContainer.appendChild(listItem);
+                        })
             }
-            var response = fetch(
-                baseUrl+'/API/verify_token/',
-                {
-                    method: 'GET',
-                    headers: {
-                        
-                        'Authorization': `Bearer ${token}`
-                    }
-                }
-            )
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status_code === 401) {
-                        window.alert('Session Expired. Please login again');
-                        window.location.href = '/login/';
-                    }
-                    else{
-                        console.log('Token verified');
-                        console.log("Data is "+data.user_profile.username);
-                        greetings.innerHTML = `Welcome ${data.user_profile.username}`;
-                        profile_pic.src = data.user_profile.profile_pic;
-                    }
-                })
-                .catch(error => {
-                    // Handle network or other unexpected errors
-                    console.error('Error:', error);
-                    window.alert('An error occurred while verifying the token. Please try again later.');
-                    window.location.href = '/login/';
-                });
+          })
+          .catch((error) => {
+            // Handle network or other unexpected errors
+            console.error("Error:", error);
+            window.alert(
+              "An error occurred while verifying the token. Please try again later."
+            );
+            window.location.href = "/login/";
+          });
+      });
+    
+      const players = document.querySelector("#players");
+      const token = localStorage.getItem("authToken");
+      const globalChat = document.querySelector("#globalChat");
+      let url = `ws://${
+        window.location.host
+      }/ws/socket-server/?token=${encodeURIComponent(token)}`;
+      const csrftoken = document.querySelector(
+        "[name=csrfmiddlewaretoken]"
+      ).value;
+      const chatSocket = new WebSocket(url);
+      const content = document.getElementById("content");
+      const playersList = document.getElementById("playersList");
+    
+      function scrollToBottom() {
+        content.scrollTop = content.scrollHeight;
+      }
+    
+      chatSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        console.log(data);
+      };
+    
+      let form = document.getElementById("form");
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        let message = e.target.message.value;
+        console.log("The user is" + e.user);
+        console.log("THe message is" + message);
+        globalChat.value = "";
+        chatSocket.send(
+          JSON.stringify({
+            message: message,
+          })
+        );
+      });
+    
+      let div = document.querySelector("#content");
+      chatSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+    
+        if (data.type === "message_received") {
+          div.innerHTML +=
+            "<br>" +
+            "<h3>" +
+            data.message +
+            "<h3>" +
+            " " +
+            "-" +
+            " " +
+            data.username +
+            "<h6>" +
+            "sent at " +
+            data.timestamp +
+            "</h6>";
+          scrollToBottom();
+        }
+    
+        if (data.type === "user_count") {
+          players.innerHTML = "Players Online: " + data.user_count;
+          playersList.innerHTML = "";
+          playersList.innerHTML = "<h5>Players List</h5>";
+          for (let i = 0; i < data.user_list.length; i++) {
+            playersList.innerHTML += "<br>" + data.user_list[i];
+          }
+        }
+      };
+    
+      // Add the group fetching and room creation functionality
+      var btn = document.getElementById("createRoomBtn");
+    
+      // Get the "Create Room" button inside the modal
+      var createRoomButton = document.getElementById("createRoom");
+    
+      // When the user clicks on the "Create Room +" link, open the modal
+      btn.onclick = function () {
+        console.log("THe nutton is clicked upon");
+        var myModal = new bootstrap.Modal(document.getElementById('createRoomModal'));
+        myModal.show();
+      }
+    
+      // Fetch group data
+      function fetchGroup() {
+        fetch('/api/create-room/', {  // Replace with actual group ID
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`  
+          }
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data) {
+              console.log(data)
+              // Add fetched users to the user list
+              const userGroups = document.getElementById('userGroups')
+    
+              data.rooms.forEach(room => {
+                const li = document.createElement('li');
+                li.textContent = room.room_name;
+                li.classList.add('dropdown-item');
+    
+                const anchor = document.createElement('a');
+                anchor.href = `/room/${room.room_name}`; 
+                anchor.classList.add('dropdown-item');
+                anchor.appendChild(li);
+    
+                userGroups.appendChild(anchor);
+              })
+            }
+          })
+      }
+    
+      // When the user clicks the "Create Room" button, collect data and send POST request
+      createRoomButton.addEventListener('click', function () {
+        console.log("THis is inside the clickin of the button");
+        const roomName = document.getElementById("roomName").value;
+    
+        // Get selected users from the list (check which checkboxes are checked)
+        const selectedUsers = [];
+        const userCheckboxes = document.querySelectorAll("#userList input[type='checkbox']");
+    
+        userCheckboxes.forEach((checkbox) => {
+          if (checkbox.checked) {
+            selectedUsers.push(checkbox.value);  
+          }
         });
-
-
-
-        const players = document.querySelector('#players');
+    
+        const data = {
+          room_name: roomName,
+          users: selectedUsers
+        };
+    
         const token = localStorage.getItem('authToken');
-        const globalChat = document.querySelector('#globalChat');
-        let url = `ws://${window.location.host}/ws/socket-server/?token=${encodeURIComponent(token)}`;
-        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        const chatSocket = new WebSocket(url)
-        const content = document.getElementById('content');
-        const playersList = document.getElementById('playersList');
-
-        
-
-        function scrollToBottom() {
-            content.scrollTop = content.scrollHeight;
+        if (!token) {
+          alert("Please log in.");
+          return;
         }
-
-        chatSocket.onmessage = function (e) {
-            const data = JSON.parse(e.data);
-            console.log(data);
-        }
-
-        let form = document.getElementById('form');
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            let message = e.target.message.value;
-            globalChat.value = '';
-            chatSocket.send(JSON.stringify({
-                'message': message
-            }));
-        });
-
-        let div = document.querySelector('#content');
-        chatSocket.onmessage = function (e) {
-            const data = JSON.parse(e.data);
-
-            if (data.type === 'message_received') {
-                div.innerHTML += '<br>' + '<h3>' + data.message + '<h3>' + ' ' + '-' + ' ' + data.username;
-                scrollToBottom();
+    
+        fetch('/api/create-room/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(data)
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              alert('Room created successfully');
+              const myModal = bootstrap.Modal.getInstance(document.getElementById('createRoomModal'));
+              myModal.hide();
+            } else {
+              alert('Failed to create room');
             }
-
-            if (data.type === 'user_count') {
-                players.innerHTML = "Players Online: " + data.user_count;
-                playersList.innerHTML = '';
-                playersList.innerHTML = '<h1>Players List</h1>';
-                for (let i = 0; i < data.user_list.length; i++) {
-                    playersList.innerHTML += '<br>' + data.user_list[i];
-                }
-                
-            }
-        }
+          })
+          .catch(error => {
+            console.error('Error creating room:', error);
+            alert('An error occurred. Please try again later.');
+          });
+      });
+    
+      window.onload = () => {
+        fetchGroup();
+      }
     </script>
-</body>
+    
 
+
+  </body>
 </html>
