@@ -30,7 +30,8 @@ class VerifyTokenView(APIView):
         users = UserProfileSerializer(allUsers,many=True)
         user_profile = UserProfile.objects.get(user=user)
         user_profile=UserProfileSerializer(user_profile)
-        return Response({'user_profile': user_profile.data , 'allUsers':users.data}, status=status.HTTP_200_OK)
+        user = UserProfileSerializer(user)
+        return Response({'user':user.data,'user_profile': user_profile.data , 'allUsers':users.data}, status=status.HTTP_200_OK)
         # try:
         #     return Response({'message': 'Token is valid'}, status=status.HTTP_200_OK)
         # except AuthenticationFailed:
@@ -360,3 +361,21 @@ class RoomDetailView(APIView):
         return Response({
             'users': users.data
         })
+    
+
+
+
+
+
+
+class PersonalChatView(View):
+    def get(self, request):
+        return render(request, 'chat.html')
+    
+class PersonalChatAPI(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        pass
+    def post(self,request):
+        pass
