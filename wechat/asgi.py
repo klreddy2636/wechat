@@ -23,6 +23,9 @@ application = ProtocolTypeRouter({
     'websocket': JWTAuthMiddleware(
         URLRouter([
             path('ws/socket-server/', consumers.MyConsumer.as_asgi()),  # Connect to video consumer
+            re_path(r'ws/group-server/(?P<room_name>\w+)/$', consumers.GroupChat.as_asgi()),
+            re_path("ws/chat/(?P<user1_id>\d+)/$",consumers.ChatConsumer.as_asgi()),
         ])
     )
 })
+
