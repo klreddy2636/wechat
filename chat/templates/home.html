@@ -258,6 +258,31 @@
       
       /* Change the background color of the dropdown button when the dropdown content is shown */
       .dropdown:hover .dropbtn {background-color: #3e8e41;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      #message{
+        width:80px;
+        height:70px;
+        background-color: white;
+        border-radius: 50%;
+      }
+      #message:hover{
+        transform: scale(1.2);
+      }
       
     </style>
 
@@ -381,6 +406,10 @@
       </form>
     </div>
   </main>
+
+  <div id="chat">
+    <a href="chat/"><img id="message" src="{% static 'images/message.png'%}" alt=""></a>
+  </div>
   
 
     <script type="text/javascript">
@@ -516,7 +545,14 @@
           playersList.innerHTML = "";
           playersList.innerHTML = "<h5>Players List</h5>";
           for (let i = 0; i < data.user_list.length; i++) {
-            playersList.innerHTML += "<br>" + data.user_list[i];
+            let player=document.createElement('div');
+            player.classList.add('player');
+            player = data.user_list[i];
+            console.log(":THe user id is ",data.user_list[i]);
+            //player.dataset.userId = player.user.id;
+
+            playersList.append(player);
+            //playersList.innerHTML += "<br>" + data.user_list[i];
           }
         }
       };
@@ -625,3 +661,4 @@
 
   </body>
 </html>
+
