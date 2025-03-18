@@ -1,11 +1,14 @@
 import time
 import datetime
 import json
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
 from django.shortcuts import render
 from asgiref.sync import async_to_sync
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from chat.models import Chat
+global_room_user_data={}
 room_user_data={}
 class MyConsumer(WebsocketConsumer):
     # permission_classes = [IsAuthenticated]
@@ -73,7 +76,7 @@ class MyConsumer(WebsocketConsumer):
 
     def send_user_list_and_count(self):
         # Get the current user count for the room
-        user_list = room_user_data.get(self.room_group_name, [])
+        user_list = global_room_user_data.get(self.room_group_name, [])
         user_count = len(user_list)
 
         # Send the user count to the group
@@ -88,14 +91,14 @@ class MyConsumer(WebsocketConsumer):
 
     def add_user_to_room(self, room_name, username):
 
-        if room_name not in room_user_data:
-            room_user_data[room_name] = []
-        if username not in room_user_data[room_name]:
-            room_user_data[room_name].append(username)
+        if room_name not in global_room_user_data:
+            global_room_user_data[room_name] = []
+        if username not in global_room_user_data[room_name]:
+            global_room_user_data[room_name].append(username)
     def remove_user_from_room(self, room_name, username):
         
-        if room_name in room_user_data and username in room_user_data[room_name]:
-            room_user_data[room_name].remove(username)
+        if room_name in global_room_user_data and username in global_room_user_data[room_name]:
+            global_room_user_data[room_name].remove(username)
          
 
 
@@ -141,3 +144,130 @@ class MyConsumer(WebsocketConsumer):
 class PersonalChat(WebsocketConsumer):
     def connect(self):
         self.group_name = self.user.id
+
+
+
+
+class GroupChat(WebsocketConsumer):
+    def connect(self):
+        print("Connecting to group chat...")
+        
+        # Get room name from the URL route kwargs
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = f"group_{self.room_name}"
+        
+        # Add the channel to the group
+        async_to_sync (self.channel_layer.group_add)(
+
+            self.room_group_name,
+            self.channel_name
+        )
+        
+
+        self.username = str(self.scope.get('user'))
+        self.user = self.scope.get('user')
+        # Accept the WebSocket connection
+        self.accept()
+
+        # Send a message indicating successful connection
+        self.send(text_data=json.dumps({
+            'type': 'group_created',
+            'message': f"Connected to {self.room_name}!"
+        }))
+
+    def receive(self, text_data):
+        # Receive the message from WebSocket
+        text_data_json = json.loads(text_data)
+        message = text_data_json['message']
+        user = text_data_json['user']
+        user2 = str(self.user.username)
+        print("Received message:", message)
+
+        # Send the message to the group
+        async_to_sync(self.channel_layer.group_send)(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': message,
+                'user':user,
+                'user2': user2
+            }
+        )
+
+
+
+    def chat_message(self, event):
+        # This method is triggered when a message is received from the group
+        print(event)
+        message = event['message']
+        user = event['user']
+        user2 = event['user2']
+        print("Sending message to WebSocket:", message)
+
+        # Send the message to the WebSocket
+        self.send(text_data=json.dumps({
+            'type': 'chat',
+            'text': message,
+            'user':user,
+            'user2':user2
+        }))
+
+    def disconnect(self, close_code):
+        # Remove the channel from the group when it disconnects
+        self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+        print(f"Disconnected from {self.room_name}")
+
+
+
+
+
+
+class ChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.user1_id = self.scope['url_route']['kwargs']['user1_id']
+        self.user = self.scope.get('user')
+        self.room_name = f"chat_{min(int(self.user1_id), int(self.user.id))}_{max(int(self.user1_id), int(self.user.id))}"
+        print(self.room_name)
+        print("Room name")
+        await self.channel_layer.group_add(
+            self.room_name,
+            self.channel_name
+        )
+
+        await self.accept()
+
+    async def disconnect(self, close_code):
+
+        await self.channel_layer.group_discard(
+            self.room_name,
+            self.channel_name
+        )
+
+    async def recieve(self, text_data):
+        text_data_json = json.loads(text_data)
+        message = text_data_json['message']
+        sender = self.scope.get('user')
+        print("THe sender is",User.username)
+        if self.user == self.user1_id:
+            chat_message = Chat(sender=sender,reciever=self.user2_id, message=message, created_at=datetime.now())
+        else:
+            chat_message = Chat(sender=sender,reciever=self.user1_id, message=message, created_at=datetime.now())
+        chat_message.save()
+
+
+        await self.channel_layer.group_send(
+            self.room_name,{
+                'type': 'chat_message',
+                'message': message
+            }
+        )
+
+    async def chat_message(self, event):
+        message = event['message']
+
+        await self.send(text_data=json.dumps({
+            'message': message
+        }))
