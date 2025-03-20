@@ -197,6 +197,31 @@
                 chatDiv.innerHTML = "<h3>" + friend.username + "</h3>";
 
                 chatDiv.addEventListener("click", function () {
+
+
+                  var chatter = fetch(baseUrl + "/API/chat/"+ friend.user.id, {
+                    method: "GET",
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                      "Content-Type": "application/json",
+                    },
+                    
+                  })
+                    .then((response) => response.json())
+                    .then((data) => {
+                      console.log("The datassss is", data);
+                      console.log("The messages are", data.chats);
+                      data.chats.forEach((message) => {
+                        var messageDiv = document.createElement("div");
+                        messageDiv.classList.add("message");
+                        messageDiv.innerHTML = `<p><strong>${message.sender.username}:</strong> ${message.message}</p> at ${message.created_at}`;
+                        document
+                          .getElementById("messages")
+                          .appendChild(messageDiv);
+                        document.getElementById("messages").scrollTop =
+                          document.getElementById("messages").scrollHeight;
+                      });
+                    });
                   // Clear previous messages before switching to new chat
                   document.getElementById("messages").innerHTML = "jhbjjjbubu";
                   if (chatSocket) {
