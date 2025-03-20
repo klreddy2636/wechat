@@ -26,8 +26,8 @@ class UserProfile(models.Model):
         return self.username
     
 class Chat(models.Model):
-    sender = models.OneToOneField(User, on_delete=models.CASCADE,blank=True,null=True)
-    reciever = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reciever',blank=True,null=True)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE,blank=True,null=True)
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reciever',blank=True,null=True)
     message = models.TextField()
     type = models.CharField(choices={'private':'private','public':'public'},max_length=20,blank=True,null=True)
     created_at = models.DateTimeField(auto_now_add=True,blank=True,null=True)
@@ -43,5 +43,3 @@ class Rooms(models.Model):
  
     def __str__(self):
         return self.room_name
-    
-
