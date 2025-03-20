@@ -3,7 +3,7 @@ from datetime import datetime
 import json
 from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
 from django.shortcuts import render
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from chat.models import *
@@ -90,11 +90,13 @@ class MyConsumer(WebsocketConsumer):
         )
  
     def add_user_to_room(self, room_name, username):
- 
+
         if room_name not in global_room_user_data:
             global_room_user_data[room_name] = []
+
         if username not in global_room_user_data[room_name]:
             global_room_user_data[room_name].append(username)
+
     def remove_user_from_room(self, room_name, username):
        
         if room_name in global_room_user_data and username in global_room_user_data[room_name]:
@@ -255,17 +257,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = text_data_json['message']
         sender = self.scope.get('user')
         print("THe sender is",sender.username)
-        #try:
-            #receiver = User.objects.get(id=self.user1_id)  # Ensure you use the correct ID here
-        #except User.DoesNotExist:
-        #    print(f"User with ID {self.user1_id} not found")
+        try:
+            receiver = await self.get_user(self.user1_id,message)  # Ensure you use the correct ID here
+        except User.DoesNotExist:
+           print(f"User with ID {self.user1_id} not found")
         
-        #chat_message = Chat(sender=sender,receiver=self.user1_id, message=message, created_at=datetime.now())
+        
         # if self.user == self.user1_id:
-        #     chat_message = Chat(sender=sender,reciever=self.user2_id, message=message, created_at=datetime.now())
+        #     chat_message = Chat(sender=sender,receiver=self.user2_id, message=message, created_at=datetime.now())
         # else:
-        #     chat_message = Chat(sender=sender,reciever=self.user1_id, message=message, created_at=datetime.now())
-        #chat_message.save()
+        #     chat_message = Chat(sender=sender,receiver=self.user1_id, message=message, created_at=datetime.now())
+        
  
  
         await self.channel_layer.group_send(
@@ -276,6 +278,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
         )
         print("Message sent to group")
+
+    @sync_to_async
+    def get_user(self,user_id,message):
+        receiver = User.objects.get(id=user_id)
+        sender = self.scope.get('user')
+        print("The sender is ",sender)
+        chat_message = Chat(sender=sender,receiver=receiver, message=message, created_at=datetime.now())
+        print("The user is")
+        chat_message.save()
+        print(receiver)
+        return receiver
+        
  
     async def chat_message(self, event):
         print("Inside chat messgae dfucniton")
