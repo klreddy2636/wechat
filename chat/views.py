@@ -13,11 +13,11 @@ from django.contrib.auth.models import User
 
 from rest_framework.views import APIView
 
-from chat.models import Rooms, UserProfile
+from chat.models import Chat, Rooms, UserProfile
 from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
 
-from chat.serializers import RoomSerializer, UserProfileSerializer
+from chat.serializers import ChatSerializer, RoomSerializer, UserProfileSerializer
 
 class VerifyTokenView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -30,7 +30,8 @@ class VerifyTokenView(APIView):
         users = UserProfileSerializer(allUsers,many=True)
         user_profile = UserProfile.objects.get(user=user)
         user_profile=UserProfileSerializer(user_profile)
-        return Response({'user_profile': user_profile.data , 'allUsers':users.data}, status=status.HTTP_200_OK)
+        user = UserProfileSerializer(user)
+        return Response({'user':user.data,'user_profile': user_profile.data , 'allUsers':users.data}, status=status.HTTP_200_OK)
         # try:
         #     return Response({'message': 'Token is valid'}, status=status.HTTP_200_OK)
         # except AuthenticationFailed:
@@ -42,7 +43,7 @@ class HomeView(View):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication, SessionAuthentication, BasicAuthentication]
     def get(self, request):
-        
+        print("Calling home")
         return render(request, 'home.html')
     
 
@@ -360,3 +361,34 @@ class RoomDetailView(APIView):
         return Response({
             'users': users.data
         })
+    
+
+
+
+
+
+
+class PersonalChatView(View):
+    def get(self, request):
+        print("Inside chat html page")
+        return render(request, 'chat.html')
+    
+class PersonalChatAPI(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get(self, request,*args,**kwargs):
+        user= request.user
+        print("Personalchat api user",user)
+        
+        reciever = User.objects.get(id=kwargs.get('id'))
+        print("The user is %s" % user)
+        chats = Chat.objects.filter(sender=user,receiver=reciever) | Chat.objects.filter(sender=reciever,receiver=user)
+        print("The chats are ",chats)
+        chats = chats.order_by('created_at')
+        
+
+        chats = ChatSerializer(chats, many=True)
+        print("The chats are ",chats)
+        return Response({"chats": chats.data})
+    def post(self,request):
+        pass

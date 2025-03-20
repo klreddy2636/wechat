@@ -21,8 +21,25 @@ class UserProfile(models.Model):
     profile_pic = models.ImageField(upload_to='profile_pics', null=True, blank=True)
     friends = models.ManyToManyField(User, related_name='friends', blank=True)
     friendrequests = models.ManyToManyField(User, related_name='friendrequests', blank=True)
-
+    friendsrequested = models.ManyToManyField(User, related_name='friendsrequested', blank=True)
     def __str__(self):
-        return self.user.username
+        return self.username
+    
+class Chat(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE,blank=True,null=True)
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reciever',blank=True,null=True)
+    message = models.TextField()
+    type = models.CharField(choices={'private':'private','public':'public'},max_length=20,blank=True,null=True)
+    created_at = models.DateTimeField(auto_now_add=True,blank=True,null=True)
+    
+    def __str__(self):
+        return self.message
     
 
+class Rooms(models.Model):
+    room_name = models.CharField(max_length=255)
+    users = models.ManyToManyField(UserProfile, related_name='rooms')
+    created_at = models.DateTimeField(auto_now_add=True)
+ 
+    def __str__(self):
+        return self.room_name

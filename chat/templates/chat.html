@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personal Chat</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f4f4f9;
+      }
+
+      #container {
+        display: flex;
+        width: 80%;
+        max-width: 1200px;
+        height: 80vh;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: white;
+        overflow: hidden;
+      }
+
+      #members {
+        width: 250px;
+        padding: 20px;
+        background-color: #007bff;
+        color: white;
+        overflow-y: auto;
+        border-radius: 10px 0 0 10px;
+      }
+
+      h1 {
+        background-color: #007bff;
+        color: white;
+        margin: 0;
+        padding: 15px;
+        text-align: center;
+        font-size: 24px;
+        border-radius: 10px 10px 0 0;
+      }
+
+      h3 {
+        margin-bottom: 20px;
+        font-size: 20px;
+        text-align: center;
+      }
+
+      .chat {
+        background-color: #444;
+        border: 2px solid #333;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        color: white;
+        text-align: center;
+      }
+
+      .chat:hover {
+        background-color: #0056b3;
+      }
+
+      #chat-container {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        background-color: #f9f9f9;
+        border-radius: 0 10px 10px 0;
+        box-shadow: 4px 0 6px rgba(0, 0, 0, 0.1);
+      }
+
+      #messages {
+        flex: 1;
+        overflow-y: scroll;
+        padding: 20px;
+        border-bottom: 1px solid #ddd;
+        background-color: white;
+      }
+
+      .message {
+        background-color: #f1f1f1;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+        font-size: 16px;
+      }
+
+      .message p {
+        margin: 0;
+      }
+
+      #form {
+        display: flex;
+        padding: 10px;
+        background-color: #fff;
+        border-radius: 0 0 10px 10px;
+        box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      #message {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-right: 10px;
+        font-size: 16px;
+        outline: none;
+      }
+
+      #message:focus {
+        border-color: #007bff;
+      }
+
+      #send-btn {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+      }
+
+      #send-btn:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div id="members">
+        <h3>Friends List</h3>
+      </div>
+
+      <div id="chat-container">
+        <h1>Personal Chat</h1>
+        <div id="messages"></div>
+        <form id="form">
+          <div id="input-container">
+            <input
+              type="text"
+              id="message"
+              name="message"
+              placeholder="Type your message..."
+              required
+            />
+            <button type="submit" id="send-btn">Send</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const token = localStorage.getItem("authToken");
+      const baseUrl = window.location.origin;
+      var friends = [];
+      var members = document.getElementById("members");
+      var form = document.getElementById("form");
+      var chatSocket = null; // We'll initialize this dynamically based on the selected user
+      var messages = document.getElementById;
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!token) {
+          window.location.href = "/login/";
+        }
+
+        // Verify the user's session
+        var response = fetch(baseUrl + "/API/verify_token/", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Data is", data);
+            if (data.code == "token_not_valid") {
+              console.log("Session Expired. Please Login again");
+              window.location.href = "/login/";
+            } else {
+              console.log("Logged in");
+
+              // Populate the Friends List
+              friends = data.allUsers;
+              friends.forEach((friend) => {
+                var chatDiv = document.createElement("div");
+                chatDiv.classList.add("chat");
+                chatDiv.innerHTML = "<h3>" + friend.username + "</h3>";
+
+                chatDiv.addEventListener("click", function () {
+
+
+                  var chatter = fetch(baseUrl + "/API/chat/"+ friend.user.id, {
+                    method: "GET",
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                      "Content-Type": "application/json",
+                    },
+                    
+                  })
+                    .then((response) => response.json())
+                    .then((data) => {
+                      console.log("The datassss is", data);
+                      console.log("The messages are", data.chats);
+                      data.chats.forEach((message) => {
+                        var messageDiv = document.createElement("div");
+                        messageDiv.classList.add("message");
+                        messageDiv.innerHTML = `<p><strong>${message.sender.username}:</strong> ${message.message}</p> at ${message.created_at}`;
+                        document
+                          .getElementById("messages")
+                          .appendChild(messageDiv);
+                        document.getElementById("messages").scrollTop =
+                          document.getElementById("messages").scrollHeight;
+                      });
+                    });
+                  // Clear previous messages before switching to new chat
+                  document.getElementById("messages").innerHTML = "jhbjjjbubu";
+                  if (chatSocket) {
+                    chatSocket.close();  // Close previous WebSocket connection
+                  }
+                  // Open a WebSocket for the selected user (friend)
+                  let url = `ws://${window.location.host}/ws/chat/${
+                    friend.user.id
+                  }/?token=${encodeURIComponent(token)}`;
+                  chatSocket = new WebSocket(url);
+
+                  // Handle incoming messages
+                  chatSocket.onmessage = function (event) {
+                    const data = JSON.parse(event.data);
+                    console.log("The data is", data);
+                    if (data.type == "chat_message") {
+                      console.log("Inside chat_message");
+                      var messageDiv = document.createElement("div");
+                      messageDiv.classList.add("message");
+                      messageDiv.innerHTML = `<p><strong>${data.user}:</strong> ${data.message}</p> at ${data.time_stamp}`;
+                      document
+                        .getElementById("messages")
+                        .appendChild(messageDiv);
+                      document.getElementById("messages").scrollTop =
+                        document.getElementById("messages").scrollHeight;
+                    }
+                  };
+
+                  // Show the current friend's name in the chat title
+                  document.querySelector(
+                    "h1"
+                  ).innerText = `Chat with ${friend.username}`;
+                });
+
+                members.append(chatDiv);
+              });
+            }
+          });
+
+        // Handle form submission to send a message
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          console.log("This is the submit eventlistenr");
+          if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+            console.log("The mesage ios ok and chatsocket is open");
+            let message = e.target.message.value;
+            chatSocket.send(
+              JSON.stringify({
+                type: "chat",
+                message: message,
+              })
+            );
+            console.log("Sent the message to socket");
+            // Clear the message input
+            e.target.message.value = "";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f4f4f9;
+      }
+
+      #container {
+        display: flex;
+        width: 80%;
+        max-width: 1200px;
+        height: 80vh;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: white;
+        overflow: hidden;
+      }
+
+      /* Sidebar styling */
+      #members {
+        width: 250px;
+        padding: 20px;
+        background-color: #007bff;
+        color: white;
+        overflow-y: auto;
+        border-radius: 10px 0 0 10px;
+      }
+
+      h1 {
+        background-color: #007bff;
+        color: white;
+        margin: 0;
+        padding: 15px;
+        text-align: center;
+        font-size: 24px;
+        border-radius: 10px 10px 0 0;
+      }
+
+      h3 {
+        margin-bottom: 20px;
+        font-size: 20px;
+        text-align: center;
+      }
+
+      .chat {
+        background-color: #444;
+        border: 2px solid #333;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        color: white;
+        text-align: center;
+      }
+
+      .chat:hover {
+        background-color: #0056b3;
+      }
+
+      /* Chat container styling */
+      #chat-container {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        background-color: #f9f9f9;
+        border-radius: 0 10px 10px 0;
+        box-shadow: 4px 0 6px rgba(0, 0, 0, 0.1);
+      }
+
+      #messages {
+        flex: 1;
+        overflow-y: scroll;
+        padding: 20px;
+        border-bottom: 1px solid #ddd;
+        background-color: white;
+      }
+
+      .message {
+        background-color: #f1f1f1;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+        font-size: 16px;
+      }
+
+      .message p {
+        margin: 0;
+      }
+
+      #form {
+        display: flex;
+        padding: 10px;
+        background-color: #fff;
+        border-radius: 0 0 10px 10px;
+        box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      #message {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-right: 10px;
+        font-size: 16px;
+        outline: none;
+      }
+
+      #message:focus {
+        border-color: #007bff;
+      }
+
+      #send-btn {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+      }
+
+      #send-btn:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <!-- Members List -->
+      <div id="members">
+        <h3>Friends List</h3>
+        <!-- Dynamically populated member elements will go here -->
+      </div>
+
+      <!-- Chat Area -->
+      <div id="chat-container">
+        <h1>Personal Chat</h1>
+        <div id="messages"></div>
+        <form id="form">
+          {% csrf_token %}
+          <div id="input-container">
+            <input
+              type="text"
+              id="message"
+              name="message"
+              placeholder="Type your message..."
+              required
+            />
+            <button type="submit">Send</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const token = localStorage.getItem("authToken");
+      const baseUrl = window.location.origin;
+      var friends = [];
+      var members = document.getElementById("members");
+      var chat = document.querySelector(".chat");
+      var form = document.getElementById("form");
+
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!token) {
+          window.location.href = "/login/";
+        }
+        var response = fetch(baseUrl + "/API/verify_token/", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status_code == 401) {
+              console.log("Session Expired. Please Login again");
+              window.location.href = "/login/";
+            } else {
+              console.log("Logged in");
+
+              friends = data.allUsers;
+              friends.forEach((friend) => {
+                var chatDiv = document.createElement("div");
+                chatDiv.classList.add("chat");
+                chatDiv.innerHTML = "<h3>" + friend.username + "</h3>";
+                chatDiv.addEventListener("click", function () {
+                  console.log("Clicked", friend.user.id);
+                  console.log("The username is", friend.username);
+                  let url = `ws://${window.location.host}/ws/chat/${
+                    friend.user.id
+                  }/?token=${encodeURIComponent(token)}`;
+                  const chatSocket = new WebSocket(url);
+                });
+                members.append(chatDiv);
+              });
+            }
+          });
+
+        chatSocket.onmessage = function (event) {
+          const data = JSON.parse(event.data);
+          console.log("data", data);
+          if (data.type == "chat") {
+            console.log("Chatting:", data.text);
+          }
+        };
+
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          let message = e.target.message.value;
+          console.log("The user is" + e.user);
+          console.log("THe message is" + message);
+          chatSocket.send = function (event) {
+            const data = formData(form);
+            console.log(data);
+          };
+        });
+      });
+    </script>
+  </body>
+</html>
+{% endcomment %}

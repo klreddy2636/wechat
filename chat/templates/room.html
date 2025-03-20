@@ -98,7 +98,6 @@
 
         
         .user{
-            
             margin: 10px;
             padding: 5px;
             background-color: #f1f1f1;
@@ -109,7 +108,6 @@
 
         .overview{
             display: none;
-
             transform: translateY(-50%);
             background-color: #007bff;
             color: white;
@@ -181,7 +179,6 @@
                     <p><strong>Name:</strong> ${member.username}</p>
                     <p><strong>Email:</strong> ${member.email}</p>
                     <p><strong>Bio:</strong> ${member.bio || 'Active'}</p>
-
                 </div>
             `;
             memberdiv.append(userDiv);
@@ -189,7 +186,7 @@
                 userDiv.addEventListener("mouseover", (event) => {
                     
                     const tooltip = userDiv.querySelector('.overview');
-                    userDiv.style.backgroundColor = "yellow"; // Change background to yellow
+                     // Change background to yellow
                     console.log("Mouse over so blockin the dispplaty")
                     tooltip.style.display = 'block';
                 });
